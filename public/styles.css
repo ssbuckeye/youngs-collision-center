@@ -115,7 +115,7 @@ p { margin: 0 0 16px; }
   justify-content: space-between;
 }
 .brand { display: flex; align-items: center; height: 100%; }
-.brand svg, .brand img { height: 40px; width: auto; }
+.brand svg, .brand img { height: 44px; width: auto; }
 
 .nav-call {
   display: none;
