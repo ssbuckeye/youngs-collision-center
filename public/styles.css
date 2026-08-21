@@ -166,6 +166,13 @@ p { margin: 0 0 16px; }
 .nav-toggle.is-open span { opacity: 0; }
 .nav-toggle.is-open::before { transform: translateY(7.5px) rotate(45deg); }
 .nav-toggle.is-open::after { transform: translateY(-7.5px) rotate(-45deg); }
+.nav-toggle.no-anim,
+.nav-toggle.no-anim::before,
+.nav-toggle.no-anim::after,
+.nav-toggle.no-anim span,
+.main-nav.no-anim {
+  transition: none !important;
+}
 
 .main-nav {
   position: fixed;

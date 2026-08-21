@@ -162,6 +162,12 @@
     });
     nav.querySelectorAll('a').forEach(function(a){
       a.addEventListener('click', function(){
+        /* Snap closed instantly (no animation) since a nav link click
+           always navigates to a new page a moment later — otherwise the
+           half-finished close transition flashes on screen right before
+           the page unloads. */
+        nav.classList.add('no-anim');
+        toggle.classList.add('no-anim');
         nav.classList.remove('is-open');
         toggle.classList.remove('is-open');
         document.body.style.overflow = '';
