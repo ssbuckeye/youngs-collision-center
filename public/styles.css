@@ -197,6 +197,7 @@ p { margin: 0 0 16px; }
 }
 .main-nav a.active { color: var(--red); }
 .main-nav .nav-cta { margin-top: 20px; }
+.main-nav .nav-cta a { text-align: center; }
 
 /* ---------- Hero ---------- */
 .hero {
