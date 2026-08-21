@@ -1,0 +1,127 @@
+import pathlib
+from partials import head, header, footer, PHONE_TEL, PHONE_DISPLAY
+
+FORM_JS_AUTH = '''
+<script>
+(function () {
+  var form = document.getElementById('authForm');
+  if (!form) return;
+  var status = document.getElementById('formStatus');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (form.querySelector('[name="company"]').value) { return; }
+    var btn = form.querySelector('button[type="submit"]');
+    var data = Object.fromEntries(new FormData(form).entries());
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    status.className = 'form-status';
+    status.textContent = '';
+    fetch(form.getAttribute('action'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Request failed');
+        window.location.href = 'thank-you.html';
+      })
+      .catch(function () {
+        status.className = 'form-status error';
+        status.textContent = "Something went wrong submitting this form — please call us at (740) 653-2431 instead.";
+        btn.disabled = false;
+        btn.textContent = 'Submit Authorization';
+      });
+  });
+})();
+</script>
+'''
+
+body = f'''
+{header("authorization-form.html")}
+
+<section class="page-hero">
+  <img class="bg" src="assets/images/IMG_2061.jpg" alt="Young's Collision Center shop">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a> / Authorization Form</div>
+    <h1>Repair &amp; Payment Authorization</h1>
+    <p>Please review and submit this authorization before we begin work on your vehicle.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="contact-layout">
+      <div class="policy-block">
+        <h3>Authorization to Repair</h3>
+        <p>I, the undersigned, hereby authorize Young's Collision Center and its employees to repair my
+          vehicle, and to drive my vehicle for the purpose of testing or inspection.</p>
+
+        <h3>Mechanic's Lien</h3>
+        <p>I understand that an express mechanic's lien is acknowledged on the vehicle to secure the
+          amount owed for repairs made to it.</p>
+
+        <h3>Liability</h3>
+        <p>Young's Collision Center will not be held responsible for theft of the vehicle or for
+          articles left in the vehicle.</p>
+
+        <h3>Payment</h3>
+        <p>Young's Collision Center is unable to release any vehicle without full payment. We accept
+          insurance checks endorsed over to Young's Collision Center, personal checks, and cash.</p>
+
+        <h3>Insurance Authorization</h3>
+        <p>I authorize the insurance company to pay Young's Collision Center directly for all original
+          and supplemental repairs, and I authorize Young's Collision Center to endorse my name on any
+          insurance checks received as payment for repairs.</p>
+      </div>
+
+      <div class="form-card">
+        <h3 style="margin-bottom:4px;">Submit Your Authorization</h3>
+        <p class="text-gray" style="font-size:14px;margin-bottom:20px;">Typing your full name below
+          serves as your electronic signature agreeing to the terms above.</p>
+        <form id="authForm" action="/api/authorization" method="POST">
+          <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label for="a-name">Full Name</label>
+              <input type="text" id="a-name" name="name" required>
+            </div>
+            <div class="form-row">
+              <label for="a-phone">Phone Number</label>
+              <input type="tel" id="a-phone" name="phone" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="a-vehicle">Vehicle (Year / Make / Model)</label>
+            <input type="text" id="a-vehicle" name="vehicle" required>
+          </div>
+          <div class="form-row">
+            <label for="a-signature">Type Full Name as Signature</label>
+            <input type="text" id="a-signature" name="signature" required>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" id="a-agree" required>
+            <label for="a-agree">I have read and agree to the authorization terms above.</label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Submit Authorization</button>
+          <div id="formStatus" class="form-status"></div>
+          <p class="form-note">Questions about this form? Call us at
+            <a href="tel:{PHONE_TEL}" style="color:var(--red);font-weight:700;">{PHONE_DISPLAY}</a>.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+{footer()}
+{FORM_JS_AUTH}
+</body>
+</html>'''
+
+html = head(
+    "Authorization Form | Young's Collision Center",
+    "Repair and payment authorization form for Young's Collision Center customers in Lancaster, Ohio.",
+    "/authorization-form/"
+) + body
+
+pathlib.Path('/home/claude/site_deploy/public/authorization-form.html').write_text(html)
+print("wrote authorization-form.html")

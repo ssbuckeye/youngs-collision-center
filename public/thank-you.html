@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thank You | Young's Collision Center</title>
+<meta name="description" content="Thank you for contacting Young's Collision Center. We'll be in touch shortly.">
+<link rel="canonical" href="https://youngscollisioncenter.com/thank-you/">
+<link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="assets/favicon/Youngs_Favicon_Icon.svg">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="index.html" aria-label="Young's Collision Center — Home">
+      <img src="assets/logo/Youngs_Logo_Horizontal.svg" alt="Young's Collision Center">
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        <li class="nav-cta"><a class="btn btn-primary btn-block" href="tel:+17406532431">Call (740) 653-2431</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary nav-call" href="tel:+17406532431">Call (740) 653-2431</a>
+    <div class="header-actions-mobile">
+      <a class="nav-call-icon" href="tel:+17406532431" aria-label="Call (740) 653-2431">&#9742;</a>
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<section class="section" style="padding-top:100px;padding-bottom:100px;">
+  <div class="container center" style="max-width:560px;">
+    <div style="width:64px;height:64px;font-size:28px;margin:0 auto 20px;background:var(--red);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">&#10003;</div>
+    <h1>Thank You!</h1>
+    <p class="text-gray">Your submission has been received. We'll get back to you shortly &mdash; if
+      it's urgent, give us a call and we'll pick up.</p>
+    <div class="hero-ctas" style="justify-content:center;">
+      <a class="btn btn-primary" href="tel:+17406532431">Call (740) 653-2431</a>
+      <a class="btn btn-outline-dark" href="index.html">Back to Home</a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/logo/Youngs_Logo_Horizontal_Reversed.svg" alt="Young's Collision Center" style="height:44px;">
+        <p>Family-owned collision repair in Lancaster, Ohio since 1985. Quality work, honest rates, and a lifetime warranty on every repair.</p>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="authorization-form.html">Authorization Form</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+17406532431">(740) 653-2431</a></li>
+          <li><a href="mailto:youngscollision@gmail.com">youngscollision@gmail.com</a></li>
+          <li>940 Kinzler Ave.<br>Lancaster, OH 43130</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Hours</h4>
+        <ul>
+          <li>Mon&ndash;Thu: 8am&ndash;5pm</li>
+          <li>Friday: 8am&ndash;4pm</li>
+          <li>Sat&ndash;Sun: Closed</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year"></span> Young's Collision Center. All rights reserved.</span>
+      <span>940 Kinzler Ave., Lancaster, OH 43130</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+
+<script>
+(function(){
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.main-nav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('is-open');
+      toggle.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    nav.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){
+        nav.classList.remove('is-open');
+        toggle.classList.remove('is-open');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
