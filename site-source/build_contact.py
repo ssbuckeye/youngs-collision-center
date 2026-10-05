@@ -92,5 +92,6 @@ html = head(
     "/contact-us/"
 ) + body
 
-pathlib.Path('/home/claude/site_deploy/public/contact.html').write_text(html)
+OUT_DIR = pathlib.Path(__file__).resolve().parent.parent / "public"
+(OUT_DIR / "contact.html").write_text(html)
 print("wrote contact.html")

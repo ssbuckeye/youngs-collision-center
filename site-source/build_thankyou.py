@@ -27,5 +27,6 @@ html = head(
     "/thank-you/"
 ) + body
 
-pathlib.Path('/home/claude/site_deploy/public/thank-you.html').write_text(html)
+OUT_DIR = pathlib.Path(__file__).resolve().parent.parent / "public"
+(OUT_DIR / "thank-you.html").write_text(html)
 print("wrote thank-you.html")

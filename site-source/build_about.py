@@ -23,7 +23,7 @@ body = f'''
         <p class="text-gray">Gary Young was a fixer. He liked to fix things &mdash; it started on the
           maintenance crew at Alten's, a foundry here in Lancaster. From there he moved on to fixing up
           homes and renting them out, and eventually to fixing up old cars in his own garage. Over the
-          years he restored two '56 Chevys, a '60 Corvette, and a '68 Hurst/Olds.</p>
+          years he restored two '56 Chevys, a '60 Corvette, and a '68 Hurst/Olds, among others.</p>
         <p class="text-gray">Eventually Gary got the idea to make that his full-time job. In 1985 he
           rented a place on Kinzler Ave. &mdash; just down and across the street from where the shop
           sits today &mdash; and Young's Collision Center was born.</p>
@@ -130,5 +130,6 @@ html = head(
     "/about/"
 ) + body
 
-pathlib.Path('/home/claude/site_deploy/public/about.html').write_text(html)
+OUT_DIR = pathlib.Path(__file__).resolve().parent.parent / "public"
+(OUT_DIR / "about.html").write_text(html)
 print("wrote about.html")

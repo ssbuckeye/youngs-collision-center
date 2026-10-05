@@ -1,5 +1,9 @@
+import json
 import pathlib
-from partials import head, header, footer, PHONE_TEL, PHONE_DISPLAY
+from partials import (
+    head, header, footer, PHONE_TEL, PHONE_DISPLAY,
+    EMAIL, ADDRESS_LINE1, ADDRESS_LINE2, SITE_URL,
+)
 
 HERO_JS = '''
 <script>
@@ -146,11 +150,73 @@ body = f'''
 </body>
 </html>'''
 
+TITLE = "Young's Collision Center | Auto Body Repair in Lancaster, Ohio"
+DESCRIPTION = ("Family-owned collision repair shop in Lancaster, Ohio since 1985. "
+               "Free estimates, PPG certified, lifetime warranty on all repairs. "
+               "Call (740) 653-2431.")
+HERO_IMAGE_URL = f"{SITE_URL}/assets/video/Youngs_Homepage_Hero_poster.jpg"
+
+# ---- Open Graph (link-preview) tags ----
+OG_TAGS = f'''<meta property="og:type" content="website">
+<meta property="og:site_name" content="Young's Collision Center">
+<meta property="og:title" content="{TITLE}">
+<meta property="og:description" content="{DESCRIPTION}">
+<meta property="og:url" content="{SITE_URL}/">
+<meta property="og:image" content="{HERO_IMAGE_URL}">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:alt" content="Jeff Young outside Young's Collision Center in Lancaster, Ohio">
+'''
+
+# ---- schema.org LocalBusiness (AutoBodyShop) structured data ----
+LOCAL_BUSINESS_SCHEMA = {
+    "@context": "https://schema.org",
+    "@type": "AutoBodyShop",
+    "name": "Young's Collision Center",
+    "image": HERO_IMAGE_URL,
+    "logo": f"{SITE_URL}/assets/favicon/icon-512.png",
+    "url": f"{SITE_URL}/",
+    "telephone": PHONE_TEL,
+    "email": EMAIL,
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": ADDRESS_LINE1,
+        "addressLocality": "Lancaster",
+        "addressRegion": "OH",
+        "postalCode": "43130",
+        "addressCountry": "US",
+    },
+    "openingHoursSpecification": [
+        {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+            "opens": "08:00",
+            "closes": "17:00",
+        },
+        {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Friday"],
+            "opens": "08:00",
+            "closes": "16:00",
+        },
+    ],
+    "foundingDate": "1985",
+    "award": "PPG Certified Repair Center",
+    "slogan": "Family-owned collision repair, serving Lancaster, Ohio since 1985 — with a lifetime warranty on every repair.",
+}
+JSON_LD = (
+    '<script type="application/ld+json">\n'
+    + json.dumps(LOCAL_BUSINESS_SCHEMA, indent=2)
+    + '\n</script>\n'
+)
+
 html = head(
-    "Young's Collision Center | Auto Body Repair in Lancaster, Ohio",
-    "Family-owned collision repair shop in Lancaster, Ohio since 1985. Free estimates, PPG certified, lifetime warranty on all repairs. Call (740) 653-2431.",
-    "/"
+    TITLE,
+    DESCRIPTION,
+    "/",
+    extra=OG_TAGS + JSON_LD,
 ) + body
 
-pathlib.Path('/home/claude/site_deploy/public/index.html').write_text(html)
+OUT_DIR = pathlib.Path(__file__).resolve().parent.parent / "public"
+(OUT_DIR / "index.html").write_text(html)
 print("wrote index.html")

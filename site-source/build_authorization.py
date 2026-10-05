@@ -123,5 +123,6 @@ html = head(
     "/authorization-form/"
 ) + body
 
-pathlib.Path('/home/claude/site_deploy/public/authorization-form.html').write_text(html)
+OUT_DIR = pathlib.Path(__file__).resolve().parent.parent / "public"
+(OUT_DIR / "authorization-form.html").write_text(html)
 print("wrote authorization-form.html")

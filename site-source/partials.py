@@ -3,6 +3,7 @@ PHONE_TEL = "+17406532431"
 EMAIL = "youngscollision@gmail.com"
 ADDRESS_LINE1 = "940 Kinzler Ave."
 ADDRESS_LINE2 = "Lancaster, OH 43130"
+SITE_URL = "https://youngscollisioncenter.com"
 
 NAV_ITEMS = [
     ("Home", "index.html"),
@@ -25,6 +26,12 @@ SITE_JS = '''
     });
     nav.querySelectorAll('a').forEach(function(a){
       a.addEventListener('click', function(){
+        /* Snap closed instantly (no animation) since a nav link click
+           always navigates to a new page a moment later — otherwise the
+           half-finished close transition flashes on screen right before
+           the page unloads. */
+        nav.classList.add('no-anim');
+        toggle.classList.add('no-anim');
         nav.classList.remove('is-open');
         toggle.classList.remove('is-open');
         document.body.style.overflow = '';
@@ -43,7 +50,7 @@ def head(title, description, canonical_path, extra=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{description}">
-<link rel="canonical" href="https://youngscollisioncenter.com{canonical_path}">
+<link rel="canonical" href="{SITE_URL}{canonical_path}">
 <link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="assets/favicon/Youngs_Favicon_Icon.svg">
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
