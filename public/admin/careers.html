@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Careers Admin | Young's Collision Center</title>
+<link rel="icon" href="../assets/favicon/favicon.ico" sizes="any">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { background: var(--gray-100); min-height: 100vh; }
+  .admin-wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 80px; }
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .admin-header h1 { font-size: 22px; margin: 0; }
+  .admin-card {
+    background: var(--white); border: 1px solid var(--gray-100); border-radius: var(--radius);
+    padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px;
+  }
+  .admin-card h2 { font-size: 16px; margin: 0 0 16px; }
+  .login-wrap { max-width: 360px; margin: 80px auto; }
+  .admin-list-item {
+    border: 1px solid var(--gray-100); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .admin-list-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .admin-list-top strong { font-size: 15px; }
+  .admin-meta { font-size: 12.5px; color: var(--gray-700); margin-top: 2px; }
+  .admin-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .admin-actions .btn, .admin-actions select { font-size: 12.5px; padding: 8px 12px; }
+  select.status-select { border: 1.5px solid var(--gray-200); border-radius: 8px; font-family: inherit; }
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 10px; }
+  .pill-open { background: rgba(28,124,63,0.12); color: #1c7c3f; }
+  .pill-general { background: rgba(200,16,46,0.1); color: var(--red); }
+  .pill-closed { background: var(--gray-100); color: var(--gray-700); }
+  .pill-new { background: rgba(200,16,46,0.1); color: var(--red); }
+  .pill-reviewed { background: rgba(28,124,63,0.12); color: #1c7c3f; }
+  .pill-archived { background: var(--gray-100); color: var(--gray-700); }
+  .admin-empty { color: var(--gray-700); font-size: 14px; }
+  .admin-error { color: var(--red); font-size: 13.5px; margin-top: 8px; display: none; }
+  .admin-save-note { color: #1c7c3f; font-size: 13px; margin-top: 8px; display: none; }
+  .admin-logout { background: none; border: none; color: var(--gray-700); font-size: 13px; cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-wrap admin-card" style="display:none;">
+  <h2 style="margin-bottom:14px;">Careers Admin Login</h2>
+  <form id="loginForm">
+    <div class="form-row">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" name="password" required autofocus>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Log In</button>
+    <div id="loginError" class="admin-error"></div>
+  </form>
+</div>
+
+<div id="adminScreen" class="admin-wrap" style="display:none;">
+  <div class="admin-header">
+    <h1>Careers Page Admin</h1>
+    <button class="admin-logout" id="logoutBtn">Log out</button>
+  </div>
+
+  <div class="admin-card">
+    <h2>Page Settings</h2>
+    <div class="form-row">
+      <label for="settingsHeadline">Headline</label>
+      <input type="text" id="settingsHeadline">
+    </div>
+    <div class="form-row">
+      <label for="settingsIntro">Intro Text</label>
+      <textarea id="settingsIntro" style="min-height:90px;"></textarea>
+    </div>
+    <div class="form-check">
+      <input type="checkbox" id="settingsAcceptGeneral">
+      <label for="settingsAcceptGeneral" style="margin:0;">Accept general applications (show "apply even without a specific opening")</label>
+    </div>
+    <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+    <div id="settingsSaved" class="admin-save-note">Saved.</div>
+  </div>
+
+  <div class="admin-card">
+    <h2>Job Postings</h2>
+    <div id="postingsAdminList"></div>
+    <hr style="border:none;border-top:1px solid var(--gray-100);margin:16px 0;">
+    <h2 style="font-size:14px;">Add a Posting</h2>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label for="newTitle">Title</label>
+        <input type="text" id="newTitle" placeholder="e.g. Collision Repair Technician">
+      </div>
+      <div class="form-row">
+        <label for="newType">Type</label>
+        <input type="text" id="newType" placeholder="e.g. Full-time">
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="newDescription">Description</label>
+      <textarea id="newDescription" placeholder="What the role involves, experience needed, etc."></textarea>
+    </div>
+    <div class="form-row">
+      <label for="newStatus">Status</label>
+      <select id="newStatus" class="status-select" style="width:100%;padding:13px 14px;">
+        <option value="open">Open — actively hiring for this role</option>
+        <option value="general">General only — not urgent, but collecting interest</option>
+        <option value="closed">Closed — hidden from the careers page</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" id="addPostingBtn">Add Posting</button>
+    <div id="postingError" class="admin-error"></div>
+  </div>
+
+  <div class="admin-card">
+    <h2>Applications</h2>
+    <div id="applicationsList"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var loginScreen = document.getElementById('loginScreen');
+  var adminScreen = document.getElementById('adminScreen');
+  var loginForm = document.getElementById('loginForm');
+  var loginError = document.getElementById('loginError');
+
+  function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+    return fetch(path, opts).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+        return data;
+      });
+    });
+  }
+
+  function escapeHtml(value) {
+    var div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  }
+  function formatDate(iso) {
+    try { return new Date(iso).toLocaleString(); } catch (e) { return iso; }
+  }
+
+  function showAdmin() {
+    loginScreen.style.display = 'none';
+    adminScreen.style.display = 'block';
+    loadSettings();
+    loadPostings();
+    loadApplications();
+  }
+  function showLogin() {
+    adminScreen.style.display = 'none';
+    loginScreen.style.display = 'block';
+  }
+
+  api('/admin/careers-api/session').then(function (d) {
+    d.loggedIn ? showAdmin() : showLogin();
+  }).catch(showLogin);
+
+  loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    loginError.style.display = 'none';
+    var password = document.getElementById('loginPassword').value;
+    api('/admin/careers-api/login', { method: 'POST', body: JSON.stringify({ password: password }) })
+      .then(showAdmin)
+      .catch(function (err) {
+        loginError.textContent = err.message;
+        loginError.style.display = 'block';
+      });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function () {
+    api('/admin/careers-api/logout', { method: 'POST' }).then(showLogin);
+  });
+
+  // ---- Settings ----
+  function loadSettings() {
+    api('/admin/careers-api/settings').then(function (s) {
+      document.getElementById('settingsHeadline').value = s.headline || '';
+      document.getElementById('settingsIntro').value = s.intro || '';
+      document.getElementById('settingsAcceptGeneral').checked = !!s.acceptGeneral;
+    });
+  }
+  document.getElementById('saveSettingsBtn').addEventListener('click', function () {
+    var note = document.getElementById('settingsSaved');
+    api('/admin/careers-api/settings', {
+      method: 'PUT',
+      body: JSON.stringify({
+        headline: document.getElementById('settingsHeadline').value,
+        intro: document.getElementById('settingsIntro').value,
+        acceptGeneral: document.getElementById('settingsAcceptGeneral').checked,
+      }),
+    }).then(function () {
+      note.style.display = 'block';
+      setTimeout(function () { note.style.display = 'none'; }, 2000);
+    });
+  });
+
+  // ---- Postings ----
+  var STATUS_LABEL = { open: 'Open', general: 'General Only', closed: 'Closed' };
+  function loadPostings() {
+    api('/admin/careers-api/postings').then(function (postings) {
+      var list = document.getElementById('postingsAdminList');
+      if (!postings.length) {
+        list.innerHTML = '<p class="admin-empty">No postings yet — add one below.</p>';
+        return;
+      }
+      list.innerHTML = postings.map(function (p) {
+        return '<div class="admin-list-item" data-id="' + p.id + '">' +
+          '<div class="admin-list-top"><strong>' + escapeHtml(p.title) + '</strong>' +
+          '<span class="pill pill-' + p.status + '">' + STATUS_LABEL[p.status] + '</span></div>' +
+          '<div class="admin-meta">' + escapeHtml(p.type || '') + '</div>' +
+          '<div class="admin-actions">' +
+          '<select class="status-select posting-status-select">' +
+          ['open', 'general', 'closed'].map(function (s) {
+            return '<option value="' + s + '"' + (s === p.status ? ' selected' : '') + '>' + STATUS_LABEL[s] + '</option>';
+          }).join('') +
+          '</select>' +
+          '<button class="btn btn-outline-dark posting-delete-btn">Delete</button>' +
+          '</div></div>';
+      }).join('');
+
+      list.querySelectorAll('.admin-list-item').forEach(function (item) {
+        var id = item.getAttribute('data-id');
+        item.querySelector('.posting-status-select').addEventListener('change', function (e) {
+          api('/admin/careers-api/postings/' + id, { method: 'PUT', body: JSON.stringify({ status: e.target.value }) })
+            .then(loadPostings);
+        });
+        item.querySelector('.posting-delete-btn').addEventListener('click', function () {
+          if (!confirm('Delete this posting? This cannot be undone.')) return;
+          api('/admin/careers-api/postings/' + id, { method: 'DELETE' }).then(loadPostings);
+        });
+      });
+    });
+  }
+  document.getElementById('addPostingBtn').addEventListener('click', function () {
+    var errorEl = document.getElementById('postingError');
+    errorEl.style.display = 'none';
+    var title = document.getElementById('newTitle').value.trim();
+    if (!title) {
+      errorEl.textContent = 'Title is required.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    api('/admin/careers-api/postings', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: title,
+        type: document.getElementById('newType').value.trim(),
+        description: document.getElementById('newDescription').value.trim(),
+        status: document.getElementById('newStatus').value,
+      }),
+    }).then(function () {
+      document.getElementById('newTitle').value = '';
+      document.getElementById('newType').value = '';
+      document.getElementById('newDescription').value = '';
+      document.getElementById('newStatus').value = 'open';
+      loadPostings();
+    }).catch(function (err) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+    });
+  });
+
+  // ---- Applications ----
+  function loadApplications() {
+    api('/admin/careers-api/applications').then(function (apps) {
+      var list = document.getElementById('applicationsList');
+      if (!apps.length) {
+        list.innerHTML = '<p class="admin-empty">No applications yet.</p>';
+        return;
+      }
+      list.innerHTML = apps.map(function (a) {
+        var files = [];
+        if (a.hasResume) files.push('<a class="btn btn-outline-dark" href="/admin/careers-api/applications/' + a.id + '/file/resume" target="_blank" rel="noopener">Resume</a>');
+        if (a.hasCoverLetter) files.push('<a class="btn btn-outline-dark" href="/admin/careers-api/applications/' + a.id + '/file/cover-letter" target="_blank" rel="noopener">Cover Letter</a>');
+        return '<div class="admin-list-item" data-id="' + a.id + '">' +
+          '<div class="admin-list-top"><strong>' + escapeHtml(a.name) + '</strong>' +
+          '<span class="pill pill-' + a.status + '">' + a.status + '</span></div>' +
+          '<div class="admin-meta">' + escapeHtml(a.postingTitle || 'General application') + ' &middot; ' + formatDate(a.createdAt) + '</div>' +
+          '<div class="admin-meta">' + escapeHtml(a.email) + ' &middot; ' + escapeHtml(a.phone) + '</div>' +
+          (a.message ? '<div class="admin-meta" style="margin-top:6px;white-space:pre-wrap;">' + escapeHtml(a.message) + '</div>' : '') +
+          '<div class="admin-actions">' +
+          files.join('') +
+          '<select class="status-select app-status-select">' +
+          ['new', 'reviewed', 'archived'].map(function (s) {
+            return '<option value="' + s + '"' + (s === a.status ? ' selected' : '') + '>' + s + '</option>';
+          }).join('') +
+          '</select>' +
+          '<button class="btn btn-outline-dark app-delete-btn">Delete</button>' +
+          '</div></div>';
+      }).join('');
+
+      list.querySelectorAll('.admin-list-item').forEach(function (item) {
+        var id = item.getAttribute('data-id');
+        item.querySelector('.app-status-select').addEventListener('change', function (e) {
+          api('/admin/careers-api/applications/' + id, { method: 'PUT', body: JSON.stringify({ status: e.target.value }) })
+            .then(loadApplications);
+        });
+        item.querySelector('.app-delete-btn').addEventListener('click', function () {
+          if (!confirm('Delete this application and its files? This cannot be undone.')) return;
+          api('/admin/careers-api/applications/' + id, { method: 'DELETE' }).then(loadApplications);
+        });
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

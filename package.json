@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "nodemailer": "^6.9.14"
+    "express-session": "^1.18.0",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.1.0"
   }
 }

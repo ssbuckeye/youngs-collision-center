@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Careers | Young's Collision Center — Lancaster, Ohio</title>
+<meta name="description" content="Join the team at Young's Collision Center in Lancaster, Ohio. See current openings or send us your resume for future opportunities.">
+<link rel="canonical" href="https://youngscollisioncenter.com/careers/">
+<link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="assets/favicon/Youngs_Favicon_Icon.svg">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="index.html" aria-label="Young's Collision Center — Home">
+      <img src="assets/logo/Youngs_Logo_Horizontal.svg" alt="Young's Collision Center">
+    </a>
+    <nav class="main-nav" id="mainNav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="careers.html" class="active">Careers</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        <li class="nav-cta"><a class="btn btn-primary btn-block" href="tel:+17406532431">Call (740) 653-2431</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary nav-call" href="tel:+17406532431">Call (740) 653-2431</a>
+    <div class="header-actions-mobile">
+      <a class="nav-call-icon" href="tel:+17406532431" aria-label="Call (740) 653-2431">&#9742;</a>
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <img class="bg" src="assets/images/IMG_2060.jpg" alt="Young's Collision Center team at work in the shop">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a> / Careers</div>
+    <h1 id="careersHeadline">Join Our Team</h1>
+    <p id="careersIntro">We're not always actively hiring, but we're always glad to hear from people
+      who care about doing quality work.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="careers-layout">
+      <div>
+        <div class="eyebrow">Current Openings</div>
+        <div id="postingsList">
+          <p class="text-gray">Loading current openings&hellip;</p>
+        </div>
+      </div>
+      <div class="form-card" id="applySection">
+  <h3 style="margin-bottom:4px;">Apply Now</h3>
+  <p class="text-gray" style="font-size:14px;margin-bottom:20px;" id="generalNote">Don't see the exact
+    role you're looking for? We're happy to keep your information on file for the next opening.</p>
+  <form id="careersForm" action="/api/careers/apply" method="POST" enctype="multipart/form-data">
+    <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;" aria-hidden="true">
+    <div class="form-row">
+      <label for="postingSelect">Position</label>
+      <select id="postingSelect" name="postingId">
+        <option value="">General Application (no specific role)</option>
+      </select>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label for="careersName">Full Name</label>
+        <input type="text" id="careersName" name="name" required>
+      </div>
+      <div class="form-row">
+        <label for="careersPhone">Phone Number</label>
+        <input type="tel" id="careersPhone" name="phone" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="careersEmail">Email Address</label>
+      <input type="email" id="careersEmail" name="email" required>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-row">
+        <label for="resume">Resume (PDF or Word, required)</label>
+        <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+      </div>
+      <div class="form-row">
+        <label for="coverLetter">Cover Letter (optional)</label>
+        <input type="file" id="coverLetter" name="coverLetter" accept=".pdf,.doc,.docx">
+      </div>
+    </div>
+    <div class="form-row">
+      <label for="careersMessage">Anything Else You'd Like Us to Know (optional)</label>
+      <textarea id="careersMessage" name="message" placeholder="Relevant experience, availability, etc."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Submit Application</button>
+    <div id="careersFormStatus" class="form-status"></div>
+    <p class="form-note">Questions first? Call us at
+      <a href="tel:+17406532431" style="color:var(--red);font-weight:700;">(740) 653-2431</a>.</p>
+  </form>
+</div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/logo/Youngs_Logo_Horizontal_Reversed.svg" alt="Young's Collision Center" style="height:44px;">
+        <p>Family-owned collision repair in Lancaster, Ohio since 1985. Quality work, honest rates, and a lifetime warranty on every repair.</p>
+      </div>
+      <div>
+        <h4>Site</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="services.html">Services</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="careers.html">Careers</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="authorization-form.html">Authorization Form</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+17406532431">(740) 653-2431</a></li>
+          <li><a href="mailto:youngscollision@gmail.com">youngscollision@gmail.com</a></li>
+          <li>940 Kinzler Ave.<br>Lancaster, OH 43130</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Hours</h4>
+        <ul>
+          <li>Mon&ndash;Thu: 8am&ndash;5pm</li>
+          <li>Friday: 8am&ndash;4pm</li>
+          <li>Sat&ndash;Sun: Closed</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year"></span> Young's Collision Center. All rights reserved.</span>
+      <span>940 Kinzler Ave., Lancaster, OH 43130</span>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+
+<script>
+(function(){
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.querySelector('.main-nav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', function(){
+      var open = nav.classList.toggle('is-open');
+      toggle.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.style.overflow = open ? 'hidden' : '';
+    });
+    nav.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){
+        /* Snap closed instantly (no animation) since a nav link click
+           always navigates to a new page a moment later — otherwise the
+           half-finished close transition flashes on screen right before
+           the page unloads. */
+        nav.classList.add('no-anim');
+        toggle.classList.add('no-anim');
+        nav.classList.remove('is-open');
+        toggle.classList.remove('is-open');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+})();
+</script>
+
+
+<script>
+(function () {
+  var postingsEl = document.getElementById('postingsList');
+  var headlineEl = document.getElementById('careersHeadline');
+  var introEl = document.getElementById('careersIntro');
+  var formSection = document.getElementById('applySection');
+  var form = document.getElementById('careersForm');
+  var postingSelect = document.getElementById('postingSelect');
+  var generalNote = document.getElementById('generalNote');
+  var status = document.getElementById('careersFormStatus');
+
+  function escapeHtml(value) {
+    var div = document.createElement('div');
+    div.textContent = value == null ? '' : String(value);
+    return div.innerHTML;
+  }
+
+  function renderPostings(postings) {
+    if (!postings.length) {
+      postingsEl.innerHTML = '<p class="text-gray">We don\'t have any specific openings posted right now.</p>';
+    } else {
+      postingsEl.innerHTML = postings.map(function (p) {
+        var badge = p.status === 'general' ? 'Open to Future Openings' : (p.type || 'Open Position');
+        return '<div class="posting-card">' +
+          '<div class="posting-card-top"><h3>' + escapeHtml(p.title) + '</h3>' +
+          '<span class="badge">' + escapeHtml(badge) + '</span></div>' +
+          '<p class="text-gray">' + escapeHtml(p.description || '') + '</p>' +
+          '<button type="button" class="btn btn-outline-dark apply-btn" data-posting-id="' + p.id + '" data-posting-title="' + escapeHtml(p.title) + '">Apply for This Role</button>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
+  function populatePostingSelect(postings) {
+    postingSelect.innerHTML = '<option value="">General Application (no specific role)</option>' +
+      postings.filter(function (p) { return p.status !== 'general'; }).map(function (p) {
+        return '<option value="' + p.id + '">' + escapeHtml(p.title) + '</option>';
+      }).join('');
+  }
+
+  fetch('/api/careers/postings')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (headlineEl && data.settings && data.settings.headline) headlineEl.textContent = data.settings.headline;
+      if (introEl && data.settings && data.settings.intro) introEl.textContent = data.settings.intro;
+      if (generalNote) generalNote.style.display = (data.settings && data.settings.acceptGeneral) ? '' : 'none';
+      renderPostings(data.postings || []);
+      populatePostingSelect(data.postings || []);
+    })
+    .catch(function () {
+      postingsEl.innerHTML = '<p class="text-gray">Openings are temporarily unavailable &mdash; please call us at (740) 653-2431.</p>';
+    });
+
+  postingsEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('.apply-btn');
+    if (!btn) return;
+    postingSelect.value = btn.getAttribute('data-posting-id');
+    formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (form.querySelector('[name="company"]').value) { return; }
+
+      var resumeInput = form.querySelector('[name="resume"]');
+      if (!resumeInput.files.length) {
+        status.className = 'form-status error';
+        status.textContent = 'Please attach your resume (PDF or Word document).';
+        return;
+      }
+
+      var btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      status.className = 'form-status';
+      status.textContent = '';
+
+      fetch('/api/careers/apply', { method: 'POST', body: new FormData(form) })
+        .then(function (res) {
+          return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+        })
+        .then(function (result) {
+          if (!result.ok) throw new Error((result.data && result.data.error) || 'Request failed');
+          window.location.href = 'thank-you.html';
+        })
+        .catch(function (err) {
+          status.className = 'form-status error';
+          status.textContent = err.message && err.message !== 'Request failed'
+            ? err.message
+            : 'Something went wrong submitting your application \u2014 please call us at (740) 653-2431 instead.';
+          btn.disabled = false;
+          btn.textContent = 'Submit Application';
+        });
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

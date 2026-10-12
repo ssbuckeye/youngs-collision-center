@@ -8,6 +8,7 @@ SCRIPTS = [
     "build_home.py",
     "build_services.py",
     "build_about.py",
+    "build_careers.py",
     "build_contact.py",
     "build_authorization.py",
     "build_thankyou.py",

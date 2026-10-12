@@ -178,6 +178,7 @@ LOCAL_BUSINESS_SCHEMA = {
     "url": f"{SITE_URL}/",
     "telephone": PHONE_TEL,
     "email": EMAIL,
+    "priceRange": "$$",
     "address": {
         "@type": "PostalAddress",
         "streetAddress": ADDRESS_LINE1,

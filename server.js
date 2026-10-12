@@ -1,13 +1,34 @@
 const path = require('path');
 const express = require('express');
 const nodemailer = require('nodemailer');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.disable('x-powered-by');
+// Railway terminates HTTPS at its edge and proxies to this app over HTTP;
+// trust proxy so secure cookies (below) know the original request was HTTPS.
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+
+// ---- Admin session (careers dashboard login) ----
+// SESSION_SECRET should be set in Railway's Variables tab, same as the other
+// secrets below — falls back to a derived value so local testing still works
+// without extra setup, but that fallback is NOT safe for production.
+app.use(session({
+  secret: process.env.SESSION_SECRET || `dev-only-insecure-secret-${process.env.GMAIL_USER || 'ycc'}`,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    // Treat it as production (and require HTTPS for the cookie) whenever this
+    // looks like a real Railway deployment rather than a local `npm start`.
+    secure: !!(process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production'),
+    maxAge: 12 * 60 * 60 * 1000, // 12 hours
+  },
+}));
 
 // ---- Mail transport: Gmail SMTP via an App Password (not the account password) ----
 // Required env vars (set these in Railway's dashboard, never commit them):
@@ -48,6 +69,18 @@ function clientIp(req) {
   const fwd = req.headers['x-forwarded-for'];
   return (fwd ? fwd.split(',')[0].trim() : null) || req.socket.remoteAddress || 'unknown';
 }
+
+// ---- Careers page: postings + applications API, and the admin dashboard that
+// manages them. Lives in its own files (careers.js / careers-db.js) to keep
+// this file focused on the rest of the site. ----
+require('./careers')(app, {
+  transporter,
+  TO_EMAIL,
+  GMAIL_USER: process.env.GMAIL_USER,
+  escapeHtml,
+  clientIp,
+  isRateLimited,
+});
 
 app.post('/api/contact', async (req, res) => {
   try {

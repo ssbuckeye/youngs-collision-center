@@ -418,6 +418,28 @@ p { margin: 0 0 16px; }
   filter: grayscale(15%);
 }
 
+/* ---------- Careers page ---------- */
+.careers-layout { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+.posting-card {
+  background: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.posting-card-top {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 8px;
+}
+.posting-card h3 { font-size: 18px; margin: 0; }
+.posting-card .apply-btn { margin-top: 12px; }
+.badge {
+  display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--red); background: rgba(200,16,46,0.1); border-radius: 999px;
+  padding: 4px 12px; white-space: nowrap;
+}
+
 /* ---------- About page ---------- */
 .about-grid {
   display: grid;
@@ -533,6 +555,7 @@ p { margin: 0 0 16px; }
 
 @media (min-width: 900px) {
   .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  .careers-layout { grid-template-columns: 1.1fr 1fr; gap: 48px; }
 }
 
 @media (min-width: 1024px) {
