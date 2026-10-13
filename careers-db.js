@@ -30,6 +30,12 @@ const DEFAULT_DB = {
       "about doing quality work. Browse any current openings below, or send us your info for the next " +
       "time we're looking to add someone.",
     acceptGeneral: true,
+    // Who gets a heads-up email when someone applies, and whether to send it
+    // at all. Blank notifyEmail falls back to the site's main TO_EMAIL at
+    // send time (see careers.js) — this lets an owner opt out entirely
+    // without having to first fill in an address.
+    notifyEmail: "",
+    notifyEnabled: true,
   },
   postings: [],
   applications: [],
@@ -88,7 +94,11 @@ async function getSettings() {
 }
 async function updateSettings(patch) {
   return withDb((db) => {
-    db.settings = { ...db.settings, ...patch };
+    // Same guard as updatePosting: only overwrite fields the caller actually
+    // sent, so a future partial update can't blank out the rest of settings.
+    for (const key of Object.keys(patch || {})) {
+      if (patch[key] !== undefined) db.settings[key] = patch[key];
+    }
     return db.settings;
   });
 }

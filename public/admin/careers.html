@@ -74,6 +74,15 @@
       <input type="checkbox" id="settingsAcceptGeneral">
       <label for="settingsAcceptGeneral" style="margin:0;">Accept general applications (show "apply even without a specific opening")</label>
     </div>
+    <div class="form-row">
+      <label for="settingsNotifyEmail">Notification Email</label>
+      <input type="email" id="settingsNotifyEmail" placeholder="e.g. youngscollision@gmail.com">
+      <p class="admin-meta" style="margin-top:6px;">Where to send a heads-up when someone applies, with a link straight to this dashboard. Leave blank to use the site's default contact address.</p>
+    </div>
+    <div class="form-check">
+      <input type="checkbox" id="settingsNotifyEnabled">
+      <label for="settingsNotifyEnabled" style="margin:0;">Email me when a new application comes in (turn off if you'd rather just check this dashboard yourself)</label>
+    </div>
     <button class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
     <div id="settingsSaved" class="admin-save-note">Saved.</div>
   </div>
@@ -180,6 +189,8 @@
       document.getElementById('settingsHeadline').value = s.headline || '';
       document.getElementById('settingsIntro').value = s.intro || '';
       document.getElementById('settingsAcceptGeneral').checked = !!s.acceptGeneral;
+      document.getElementById('settingsNotifyEmail').value = s.notifyEmail || '';
+      document.getElementById('settingsNotifyEnabled').checked = s.notifyEnabled !== false;
     });
   }
   document.getElementById('saveSettingsBtn').addEventListener('click', function () {
@@ -190,6 +201,8 @@
         headline: document.getElementById('settingsHeadline').value,
         intro: document.getElementById('settingsIntro').value,
         acceptGeneral: document.getElementById('settingsAcceptGeneral').checked,
+        notifyEmail: document.getElementById('settingsNotifyEmail').value.trim(),
+        notifyEnabled: document.getElementById('settingsNotifyEnabled').checked,
       }),
     }).then(function () {
       note.style.display = 'block';

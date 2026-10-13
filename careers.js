@@ -126,23 +126,35 @@ module.exports = function registerCareersRoutes(app, { transporter, TO_EMAIL, GM
           attachments.push({ filename: coverLetterFile.originalname || 'cover-letter', content: coverLetterFile.buffer });
         }
 
-        transporter.sendMail({
-          from: `"Young's Collision Center Website" <${GMAIL_USER}>`,
-          to: TO_EMAIL,
-          replyTo: email,
-          subject: `New Job Application: ${name}${postingTitle ? ` — ${postingTitle}` : ''}`,
-          html: `
-            <h2>New Job Application</h2>
-            <p><strong>Applying for:</strong> ${escapeHtml(postingTitle || 'General interest (no specific opening)')}</p>
-            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-            <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
-            ${message ? `<p><strong>Message:</strong><br>${escapeHtml(message).replace(/\n/g, '<br>')}</p>` : ''}
-            <p>Resume${coverLetterFile ? ' and cover letter are' : ' is'} attached. Every application is also saved in the careers admin dashboard.</p>
-            <hr><p style="color:#888;font-size:12px;">Submitted via the careers page on youngscollisioncenter.com</p>
-          `,
-          attachments,
-        }).catch((mailErr) => console.error('careers application email failed (application was still saved):', mailErr));
+        // Who (if anyone) gets notified: the admin-configured address wins,
+        // falling back to the site's main contact address if that's left
+        // blank, unless the owner has turned notifications off entirely.
+        const settings = await db.getSettings();
+        const notifyTo = settings.notifyEnabled === false
+          ? null
+          : (settings.notifyEmail && settings.notifyEmail.trim()) || TO_EMAIL;
+
+        if (notifyTo) {
+          const adminUrl = `${req.protocol}://${req.get('host')}/admin/careers.html`;
+          transporter.sendMail({
+            from: `"Young's Collision Center Website" <${GMAIL_USER}>`,
+            to: notifyTo,
+            replyTo: email,
+            subject: `New Job Application: ${name}${postingTitle ? ` — ${postingTitle}` : ''}`,
+            html: `
+              <h2>New Job Application</h2>
+              <p><strong>Applying for:</strong> ${escapeHtml(postingTitle || 'General interest (no specific opening)')}</p>
+              <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+              <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+              <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
+              ${message ? `<p><strong>Message:</strong><br>${escapeHtml(message).replace(/\n/g, '<br>')}</p>` : ''}
+              <p>Resume${coverLetterFile ? ' and cover letter are' : ' is'} attached. Every application is also saved in the careers admin dashboard.</p>
+              <p><a href="${adminUrl}">Open the careers admin dashboard &rarr;</a></p>
+              <hr><p style="color:#888;font-size:12px;">Submitted via the careers page on youngscollisioncenter.com &mdash; you can turn these emails off any time in the dashboard's Page Settings.</p>
+            `,
+            attachments,
+          }).catch((mailErr) => console.error('careers application email failed (application was still saved):', mailErr));
+        }
 
         res.json({ ok: true });
       } catch (applyErr) {
@@ -178,8 +190,8 @@ module.exports = function registerCareersRoutes(app, { transporter, TO_EMAIL, GM
     res.json(await db.getSettings());
   });
   app.put('/admin/careers-api/settings', requireAdmin, async (req, res) => {
-    const { headline, intro, acceptGeneral } = req.body || {};
-    res.json(await db.updateSettings({ headline, intro, acceptGeneral }));
+    const { headline, intro, acceptGeneral, notifyEmail, notifyEnabled } = req.body || {};
+    res.json(await db.updateSettings({ headline, intro, acceptGeneral, notifyEmail, notifyEnabled }));
   });
 
   // ---------------------------------------------------------------- admin: postings
