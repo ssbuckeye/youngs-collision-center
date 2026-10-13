@@ -245,6 +245,11 @@ module.exports = function registerCareersRoutes(app, { transporter, TO_EMAIL, GM
     if (!ok) return res.status(404).json({ error: 'Not found.' });
     res.json({ ok: true });
   });
+  const FILE_MIME_TYPES = {
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  };
   app.get('/admin/careers-api/applications/:id/file/:kind', requireAdmin, async (req, res) => {
     const { id, kind } = req.params;
     if (kind !== 'resume' && kind !== 'cover-letter') return res.status(400).end();
@@ -254,6 +259,13 @@ module.exports = function registerCareersRoutes(app, { transporter, TO_EMAIL, GM
     if (!filename) return res.status(404).end();
     const filePath = path.join(db.applicationUploadDir(id), filename);
     if (!fs.existsSync(filePath)) return res.status(404).end();
-    res.download(filePath, `${application.name.replace(/[^a-z0-9]+/gi, '-')}-${kind}${path.extname(filename)}`);
+    const ext = path.extname(filename);
+    const downloadName = `${application.name.replace(/[^a-z0-9]+/gi, '-')}-${kind}${ext}`;
+    // `inline` lets PDFs (the common case) open right in the browser tab
+    // instead of forcing a download — Word docs have no native browser
+    // viewer, so the browser still ends up downloading those regardless.
+    res.setHeader('Content-Type', FILE_MIME_TYPES[ext.toLowerCase()] || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `inline; filename="${downloadName}"`);
+    fs.createReadStream(filePath).pipe(res);
   });
 };
