@@ -202,7 +202,7 @@
         return '<div class="posting-card">' +
           '<div class="posting-card-top"><h3>' + escapeHtml(p.title) + '</h3>' +
           '<span class="badge">' + escapeHtml(badge) + '</span></div>' +
-          '<p class="text-gray">' + escapeHtml(p.description || '') + '</p>' +
+          '<p class="text-gray posting-description">' + escapeHtml(p.description || '') + '</p>' +
           '<button type="button" class="btn btn-outline-dark apply-btn" data-posting-id="' + p.id + '" data-posting-title="' + escapeHtml(p.title) + '">Apply for This Role</button>' +
           '</div>';
       }).join('');

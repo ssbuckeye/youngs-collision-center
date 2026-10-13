@@ -122,7 +122,17 @@ async function updatePosting(id, patch) {
   return withDb((db) => {
     const posting = db.postings.find((p) => p.id === id);
     if (!posting) return null;
-    Object.assign(posting, patch, { updatedAt: new Date().toISOString() });
+    // Only apply fields the caller actually sent. The admin dashboard's status
+    // dropdown, for example, PUTs just `{ status }` — without this filter,
+    // destructuring that body elsewhere fills in `title`/`type`/`description`/
+    // `order` as `undefined`, and Object.assign would happily overwrite the
+    // posting's real values with `undefined` (which then vanish entirely once
+    // the record is JSON-serialized to disk).
+    const fields = ['title', 'type', 'description', 'status', 'order'];
+    for (const field of fields) {
+      if (patch[field] !== undefined) posting[field] = patch[field];
+    }
+    posting.updatedAt = new Date().toISOString();
     return posting;
   });
 }

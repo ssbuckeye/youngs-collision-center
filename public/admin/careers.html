@@ -199,39 +199,116 @@
 
   // ---- Postings ----
   var STATUS_LABEL = { open: 'Open', general: 'General Only', closed: 'Closed' };
+  var lastPostings = [];
+  var editingPostingId = null;
+
   function loadPostings() {
-    api('/admin/careers-api/postings').then(function (postings) {
-      var list = document.getElementById('postingsAdminList');
-      if (!postings.length) {
-        list.innerHTML = '<p class="admin-empty">No postings yet — add one below.</p>';
-        return;
-      }
-      list.innerHTML = postings.map(function (p) {
+    return api('/admin/careers-api/postings').then(function (postings) {
+      lastPostings = postings;
+      renderPostingsList();
+    });
+  }
+
+  function renderPostingsList() {
+    var list = document.getElementById('postingsAdminList');
+    if (!lastPostings.length) {
+      list.innerHTML = '<p class="admin-empty">No postings yet — add one below.</p>';
+      return;
+    }
+    list.innerHTML = lastPostings.map(function (p) {
+      if (p.id === editingPostingId) {
         return '<div class="admin-list-item" data-id="' + p.id + '">' +
-          '<div class="admin-list-top"><strong>' + escapeHtml(p.title) + '</strong>' +
-          '<span class="pill pill-' + p.status + '">' + STATUS_LABEL[p.status] + '</span></div>' +
-          '<div class="admin-meta">' + escapeHtml(p.type || '') + '</div>' +
-          '<div class="admin-actions">' +
-          '<select class="status-select posting-status-select">' +
+          '<div class="form-row"><label>Title</label><input type="text" class="edit-title" value="' + escapeHtml(p.title) + '"></div>' +
+          '<div class="form-row"><label>Type</label><input type="text" class="edit-type" value="' + escapeHtml(p.type || '') + '"></div>' +
+          '<div class="form-row"><label>Description</label><textarea class="edit-description">' + escapeHtml(p.description || '') + '</textarea></div>' +
+          '<div class="form-row"><label>Status</label><select class="status-select edit-status" style="width:100%;padding:13px 14px;">' +
           ['open', 'general', 'closed'].map(function (s) {
             return '<option value="' + s + '"' + (s === p.status ? ' selected' : '') + '>' + STATUS_LABEL[s] + '</option>';
           }).join('') +
-          '</select>' +
-          '<button class="btn btn-outline-dark posting-delete-btn">Delete</button>' +
-          '</div></div>';
-      }).join('');
+          '</select></div>' +
+          '<div class="admin-actions">' +
+          '<button class="btn btn-primary posting-save-btn">Save Changes</button>' +
+          '<button class="btn btn-outline-dark posting-cancel-btn">Cancel</button>' +
+          '</div><div class="admin-error posting-edit-error"></div></div>';
+      }
+      return '<div class="admin-list-item" data-id="' + p.id + '">' +
+        '<div class="admin-list-top"><strong>' + escapeHtml(p.title) + '</strong>' +
+        '<span class="pill pill-' + p.status + '">' + STATUS_LABEL[p.status] + '</span></div>' +
+        '<div class="admin-meta">' + escapeHtml(p.type || '') + '</div>' +
+        '<div class="admin-actions">' +
+        '<select class="status-select posting-status-select">' +
+        ['open', 'general', 'closed'].map(function (s) {
+          return '<option value="' + s + '"' + (s === p.status ? ' selected' : '') + '>' + STATUS_LABEL[s] + '</option>';
+        }).join('') +
+        '</select>' +
+        '<button class="btn btn-outline-dark posting-edit-btn">Edit</button>' +
+        '<button class="btn btn-outline-dark posting-delete-btn">Delete</button>' +
+        '</div></div>';
+    }).join('');
 
-      list.querySelectorAll('.admin-list-item').forEach(function (item) {
-        var id = item.getAttribute('data-id');
-        item.querySelector('.posting-status-select').addEventListener('change', function (e) {
+    list.querySelectorAll('.admin-list-item').forEach(function (item) {
+      var id = item.getAttribute('data-id');
+
+      var statusSelect = item.querySelector('.posting-status-select');
+      if (statusSelect) {
+        statusSelect.addEventListener('change', function (e) {
           api('/admin/careers-api/postings/' + id, { method: 'PUT', body: JSON.stringify({ status: e.target.value }) })
             .then(loadPostings);
         });
-        item.querySelector('.posting-delete-btn').addEventListener('click', function () {
+      }
+
+      var editBtn = item.querySelector('.posting-edit-btn');
+      if (editBtn) {
+        editBtn.addEventListener('click', function () {
+          editingPostingId = id;
+          renderPostingsList();
+        });
+      }
+
+      var deleteBtn = item.querySelector('.posting-delete-btn');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', function () {
           if (!confirm('Delete this posting? This cannot be undone.')) return;
           api('/admin/careers-api/postings/' + id, { method: 'DELETE' }).then(loadPostings);
         });
-      });
+      }
+
+      var cancelBtn = item.querySelector('.posting-cancel-btn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', function () {
+          editingPostingId = null;
+          renderPostingsList();
+        });
+      }
+
+      var saveBtn = item.querySelector('.posting-save-btn');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+          var errorEl = item.querySelector('.posting-edit-error');
+          errorEl.style.display = 'none';
+          var title = item.querySelector('.edit-title').value.trim();
+          if (!title) {
+            errorEl.textContent = 'Title is required.';
+            errorEl.style.display = 'block';
+            return;
+          }
+          api('/admin/careers-api/postings/' + id, {
+            method: 'PUT',
+            body: JSON.stringify({
+              title: title,
+              type: item.querySelector('.edit-type').value.trim(),
+              description: item.querySelector('.edit-description').value.trim(),
+              status: item.querySelector('.edit-status').value,
+            }),
+          }).then(function () {
+            editingPostingId = null;
+            loadPostings();
+          }).catch(function (err) {
+            errorEl.textContent = (err && err.message) || 'Could not save changes.';
+            errorEl.style.display = 'block';
+          });
+        });
+      }
     });
   }
   document.getElementById('addPostingBtn').addEventListener('click', function () {
