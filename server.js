@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const nodemailer = require('nodemailer');
@@ -14,10 +15,76 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 // ---- Admin session (careers dashboard login) ----
+// Sessions are stored on disk (on the same persistent volume as the careers
+// database — see DATA_DIR) instead of in memory. express-session's default
+// MemoryStore loses every logged-in session the moment the process restarts,
+// which happens on every deploy — so without this, every upload to the site
+// silently logs the admin dashboard out, and a mid-edit save would fail with
+// "Not logged in" for no obvious reason.
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
+
+class FileSessionStore extends session.Store {
+  constructor(filePath) {
+    super();
+    this.filePath = filePath;
+    this.sessions = this._load();
+  }
+  _load() {
+    try {
+      if (fs.existsSync(this.filePath)) return JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
+    } catch (err) {
+      console.error('Session store file is unreadable, starting with no sessions:', err);
+    }
+    return {};
+  }
+  _save() {
+    try {
+      fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+      fs.writeFileSync(this.filePath, JSON.stringify(this.sessions));
+    } catch (err) {
+      console.error('Could not persist sessions to disk:', err);
+    }
+  }
+  _prune(sid) {
+    const entry = this.sessions[sid];
+    if (entry && entry.expires && Date.now() > entry.expires) {
+      delete this.sessions[sid];
+      return true;
+    }
+    return false;
+  }
+  get(sid, cb) {
+    this._prune(sid);
+    const entry = this.sessions[sid];
+    cb(null, entry ? entry.session : null);
+  }
+  set(sid, sessionData, cb) {
+    const maxAge = sessionData.cookie && sessionData.cookie.maxAge;
+    this.sessions[sid] = { session: sessionData, expires: maxAge ? Date.now() + maxAge : null };
+    this._save();
+    if (cb) cb();
+  }
+  destroy(sid, cb) {
+    delete this.sessions[sid];
+    this._save();
+    if (cb) cb();
+  }
+  touch(sid, sessionData, cb) {
+    if (this.sessions[sid]) {
+      const maxAge = sessionData.cookie && sessionData.cookie.maxAge;
+      this.sessions[sid].expires = maxAge ? Date.now() + maxAge : null;
+      this._save();
+    }
+    if (cb) cb();
+  }
+}
+
 // SESSION_SECRET should be set in Railway's Variables tab, same as the other
 // secrets below — falls back to a derived value so local testing still works
 // without extra setup, but that fallback is NOT safe for production.
 app.use(session({
+  store: new FileSessionStore(SESSIONS_FILE),
   secret: process.env.SESSION_SECRET || `dev-only-insecure-secret-${process.env.GMAIL_USER || 'ycc'}`,
   resave: false,
   saveUninitialized: false,
@@ -159,6 +226,23 @@ app.post('/api/authorization', async (req, res) => {
 // Simple health check Railway (or you) can hit to confirm the service is up.
 app.get('/healthz', (req, res) => res.status(200).send('ok'));
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Young's Collision Center site listening on port ${PORT}`);
 });
+
+// Railway sends SIGTERM to the old container during every deploy (it's
+// swapping in the new one, not reporting a crash). Without a handler, Node
+// doesn't react to that signal and `npm start`'s wrapper process ends up
+// reporting it as a failed/crashed exit — which is exactly what shows up as
+// a "crash" in the Railway dashboard on every single upload, even though
+// nothing is actually wrong. Catching the signal and shutting down on our
+// own terms (and exiting 0) avoids that false alarm.
+function shutdown(signal) {
+  console.log(`${signal} received, shutting down gracefully`);
+  server.close(() => process.exit(0));
+  // Safety net in case something is keeping a connection open — don't let
+  // Railway have to SIGKILL us after its own grace period runs out.
+  setTimeout(() => process.exit(0), 10000).unref();
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));

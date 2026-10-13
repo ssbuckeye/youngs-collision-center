@@ -265,8 +265,24 @@
       var statusSelect = item.querySelector('.posting-status-select');
       if (statusSelect) {
         statusSelect.addEventListener('change', function (e) {
-          api('/admin/careers-api/postings/' + id, { method: 'PUT', body: JSON.stringify({ status: e.target.value }) })
-            .then(loadPostings);
+          var newValue = e.target.value;
+          var existing = lastPostings.find(function (x) { return x.id === id; });
+          var previousValue = existing ? existing.status : newValue;
+          api('/admin/careers-api/postings/' + id, { method: 'PUT', body: JSON.stringify({ status: newValue }) })
+            .then(loadPostings)
+            .catch(function (err) {
+              // Put the dropdown back so it doesn't show a status that was
+              // never actually saved, then explain what happened. A 401 here
+              // almost always means the admin session expired (e.g. the site
+              // was redeployed) — send back to the login screen so it's obvious.
+              e.target.value = previousValue;
+              if (err && /not logged in/i.test(err.message || '')) {
+                alert('Your admin session has expired — please log back in and try again.');
+                showLogin();
+              } else {
+                alert('Could not update status: ' + ((err && err.message) || 'unknown error'));
+              }
+            });
         });
       }
 
@@ -317,6 +333,11 @@
             editingPostingId = null;
             loadPostings();
           }).catch(function (err) {
+            if (err && /not logged in/i.test(err.message || '')) {
+              alert('Your admin session has expired — please log back in and your changes should save fine.');
+              showLogin();
+              return;
+            }
             errorEl.textContent = (err && err.message) || 'Could not save changes.';
             errorEl.style.display = 'block';
           });
@@ -385,8 +406,20 @@
       list.querySelectorAll('.admin-list-item').forEach(function (item) {
         var id = item.getAttribute('data-id');
         item.querySelector('.app-status-select').addEventListener('change', function (e) {
-          api('/admin/careers-api/applications/' + id, { method: 'PUT', body: JSON.stringify({ status: e.target.value }) })
-            .then(loadApplications);
+          var newValue = e.target.value;
+          var existingApp = apps.find(function (x) { return x.id === id; });
+          var previousValue = existingApp ? existingApp.status : newValue;
+          api('/admin/careers-api/applications/' + id, { method: 'PUT', body: JSON.stringify({ status: newValue }) })
+            .then(loadApplications)
+            .catch(function (err) {
+              e.target.value = previousValue;
+              if (err && /not logged in/i.test(err.message || '')) {
+                alert('Your admin session has expired — please log back in and try again.');
+                showLogin();
+              } else {
+                alert('Could not update status: ' + ((err && err.message) || 'unknown error'));
+              }
+            });
         });
         item.querySelector('.app-delete-btn').addEventListener('click', function () {
           if (!confirm('Delete this application and its files? This cannot be undone.')) return;
