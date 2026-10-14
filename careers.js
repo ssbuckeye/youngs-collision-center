@@ -186,11 +186,22 @@ module.exports = function registerCareersRoutes(app, { sendEmail, TO_EMAIL, esca
 
   // ---------------------------------------------------------------- admin: settings
   app.get('/admin/careers-api/settings', requireAdmin, async (req, res) => {
-    res.json(await db.getSettings());
+    // defaultEmail is the address notifications actually fall back to when
+    // notifyEmail is blank — exposed so the dashboard can always show the
+    // real effective address, not a stale or empty field.
+    res.json({ ...(await db.getSettings()), defaultEmail: TO_EMAIL });
   });
   app.put('/admin/careers-api/settings', requireAdmin, async (req, res) => {
-    const { headline, intro, acceptGeneral, notifyEmail, notifyEnabled } = req.body || {};
-    res.json(await db.updateSettings({ headline, intro, acceptGeneral, notifyEmail, notifyEnabled }));
+    // notifyEmail is intentionally NOT accepted here. The free Resend sending
+    // address in use right now can only deliver to the one address its
+    // account is registered under — pointing notifications anywhere else
+    // makes them fail with a 403, silently, in the background. Changing the
+    // recipient is a deliberate step (verifying a real sending domain with
+    // Resend), not something to expose as an everyday admin setting. See
+    // server.js's RESEND_FROM_EMAIL comment for how to lift this once that's
+    // done.
+    const { headline, intro, acceptGeneral, notifyEnabled } = req.body || {};
+    res.json(await db.updateSettings({ headline, intro, acceptGeneral, notifyEnabled }));
   });
 
   // ---------------------------------------------------------------- admin: postings
