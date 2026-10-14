@@ -11,6 +11,37 @@ app.disable('x-powered-by');
 // trust proxy so secure cookies (below) know the original request was HTTPS.
 app.set('trust proxy', 1);
 app.use(express.json());
+
+// ---- SEO: preserve the old WordPress site's URL structure ----
+// The live site being replaced (WordPress) has exactly 5 pages indexed by
+// Google, all with a trailing slash: /, /services/, /contact-us/,
+// /thank-you/, /authorization-form/. This site serves pages WITHOUT a
+// trailing slash (e.g. /services, /contact), and /contact-us has no
+// equivalent path here at all — it was renamed to /contact. Without these
+// redirects, every one of those indexed URLs (and any backlink or bookmark
+// pointing at them) would 404 the moment the domain switches over, and
+// Google would eventually drop them from search results instead of
+// transferring their ranking to the new URL. A 301 (permanent redirect)
+// is the correct signal to tell Google "this page moved here for good."
+const LEGACY_REDIRECTS = {
+  '/contact-us': '/contact',
+  '/contact-us/': '/contact',
+};
+app.use((req, res, next) => {
+  const target = LEGACY_REDIRECTS[req.path];
+  if (target) {
+    const qs = req.url.slice(req.path.length);
+    return res.redirect(301, target + qs);
+  }
+  // Strip a trailing slash from any other path (e.g. /services/ -> /services,
+  // /thank-you/ -> /thank-you) so every old indexed URL keeps working.
+  if (req.path !== '/' && req.path.endsWith('/')) {
+    const qs = req.url.slice(req.path.length);
+    return res.redirect(301, req.path.slice(0, -1) + qs);
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 // ---- Admin session (careers dashboard login) ----
