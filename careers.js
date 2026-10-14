@@ -47,7 +47,7 @@ function timingSafeEqual(a, b) {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
-module.exports = function registerCareersRoutes(app, { transporter, TO_EMAIL, GMAIL_USER, escapeHtml, clientIp, isRateLimited }) {
+module.exports = function registerCareersRoutes(app, { sendEmail, TO_EMAIL, escapeHtml, clientIp, isRateLimited }) {
   db.ensureDirs();
 
   // ---------------------------------------------------------------- public
@@ -136,8 +136,7 @@ module.exports = function registerCareersRoutes(app, { transporter, TO_EMAIL, GM
 
         if (notifyTo) {
           const adminUrl = `${req.protocol}://${req.get('host')}/admin/careers.html`;
-          transporter.sendMail({
-            from: `"Young's Collision Center Website" <${GMAIL_USER}>`,
+          sendEmail({
             to: notifyTo,
             replyTo: email,
             subject: `New Job Application: ${name}${postingTitle ? ` — ${postingTitle}` : ''}`,

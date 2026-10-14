@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const nodemailer = require('nodemailer');
 const session = require('express-session');
 
 const app = express();
@@ -97,20 +96,63 @@ app.use(session({
   },
 }));
 
-// ---- Mail transport: Gmail SMTP via an App Password (not the account password) ----
-// Required env vars (set these in Railway's dashboard, never commit them):
-//   GMAIL_USER          e.g. youngscollision@gmail.com
-//   GMAIL_APP_PASSWORD  the 16-character App Password from Google Account > Security
-//   TO_EMAIL             where form submissions should land (defaults to GMAIL_USER)
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
+// ---- Mail: sent through Resend's HTTPS API instead of raw Gmail SMTP ----
+// Railway blocks outbound SMTP entirely on Free/Trial/Hobby plans (it's a
+// Pro-plan-only feature) — that's the actual reason emails never sent
+// regardless of the Gmail App Password; see the Connection-timeout/ETIMEDOUT
+// errors that showed up even with a valid password. Resend's API runs over
+// plain HTTPS, which isn't affected by that restriction.
+//
+// Required env var:
+//   RESEND_API_KEY     from the Resend dashboard (API Keys)
+// Optional:
+//   RESEND_FROM_EMAIL   defaults to Resend's shared "onboarding@resend.dev"
+//                       test address, which can only deliver to the Resend
+//                       account's own registered email. That's fine here as
+//                       long as TO_EMAIL below is that same address. Once a
+//                       real domain (e.g. youngscollisioncenter.com) is
+//                       verified with Resend, set this to an address on it
+//                       (e.g. "notifications@youngscollisioncenter.com") to
+//                       lift that restriction — no code change needed.
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+if (!RESEND_API_KEY) {
+  console.error('RESEND_API_KEY is not set — contact, authorization, and careers emails will fail until it is.');
+}
 
-const TO_EMAIL = process.env.TO_EMAIL || process.env.GMAIL_USER;
+async function sendEmail({ to, subject, html, replyTo, attachments }) {
+  const body = {
+    from: `Young's Collision Center Website <${RESEND_FROM_EMAIL}>`,
+    to: Array.isArray(to) ? to : [to],
+    subject,
+    html,
+  };
+  if (replyTo) body.reply_to = replyTo;
+  if (attachments && attachments.length) {
+    body.attachments = attachments.map((a) => ({
+      filename: a.filename,
+      content: Buffer.isBuffer(a.content) ? a.content.toString('base64') : a.content,
+    }));
+  }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`Resend API error ${res.status}: ${errText}`);
+  }
+  return res.json();
+}
+
+const TO_EMAIL = process.env.TO_EMAIL;
+if (!TO_EMAIL) {
+  console.error('TO_EMAIL is not set — there is no default address for contact/authorization emails to go to.');
+}
 
 // ---- Minimal in-memory rate limiter: 5 submissions / 10 minutes per IP ----
 // Good enough to blunt casual abuse on a small-business site without adding a dependency.
@@ -141,9 +183,8 @@ function clientIp(req) {
 // manages them. Lives in its own files (careers.js / careers-db.js) to keep
 // this file focused on the rest of the site. ----
 require('./careers')(app, {
-  transporter,
+  sendEmail,
   TO_EMAIL,
-  GMAIL_USER: process.env.GMAIL_USER,
   escapeHtml,
   clientIp,
   isRateLimited,
@@ -165,8 +206,7 @@ app.post('/api/contact', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields.' });
     }
 
-    await transporter.sendMail({
-      from: `"Young's Collision Center Website" <${process.env.GMAIL_USER}>`,
+    await sendEmail({
       to: TO_EMAIL,
       replyTo: email,
       subject: `New Estimate Request from ${name}`,
@@ -202,8 +242,7 @@ app.post('/api/authorization', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields.' });
     }
 
-    await transporter.sendMail({
-      from: `"Young's Collision Center Website" <${process.env.GMAIL_USER}>`,
+    await sendEmail({
       to: TO_EMAIL,
       subject: `New Repair Authorization from ${name}`,
       html: `
