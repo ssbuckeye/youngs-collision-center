@@ -363,6 +363,10 @@ p { margin: 0 0 16px; }
   border-radius: var(--radius);
   padding: 28px 22px;
   box-shadow: var(--shadow);
+  /* So a same-page anchor jump (e.g. from the "Get a Free Estimate"
+     CTAs elsewhere on the site) lands below the sticky header instead
+     of tucking the top of the form underneath it. */
+  scroll-margin-top: calc(var(--header-h) + 20px);
 }
 .form-row { margin-bottom: 18px; }
 .form-row label {
