@@ -35,8 +35,8 @@ body = f'''
 {header("index.html")}
 
 <section class="hero">
-  <img class="hero-poster" src="assets/video/Youngs_Homepage_Hero_poster.jpg" alt="Young's Collision Center shop and team">
-  <video id="heroVideo" poster="assets/video/Youngs_Homepage_Hero_poster.jpg" muted playsinline preload="none">
+  <img class="hero-poster" src="assets/video/Youngs_Homepage_Hero_poster-960.jpg" srcset="assets/video/Youngs_Homepage_Hero_poster-640.jpg 640w, assets/video/Youngs_Homepage_Hero_poster-960.jpg 960w, assets/video/Youngs_Homepage_Hero_poster-1280.jpg 1280w" sizes="100vw" fetchpriority="high" alt="Young's Collision Center shop and team">
+  <video id="heroVideo" poster="assets/video/Youngs_Homepage_Hero_poster-960.jpg" muted playsinline preload="none">
     <source data-src="assets/video/Youngs_Homepage_Hero.webm" type="video/webm">
     <source data-src="assets/video/Youngs_Homepage_Hero.mp4" type="video/mp4">
   </video>
